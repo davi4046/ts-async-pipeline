@@ -1,0 +1,29 @@
+{
+    "name": "ts-async-pipeline",
+    "version": "1.0.0",
+    "description": "A small library for running async functions in sequence with the possibility of limiting their execution time and specifying a fallback value.",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/davi4046/ts-async-pipeline.git"
+    },
+    "keywords": [
+        "async",
+        "pipeline",
+        "sequence",
+        "timeout",
+        "phases",
+        "piping"
+    ],
+    "author": "David Rud Pedersen",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/jest": "^29.5.12",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.1.5",
+        "typescript": "^5.5.3"
+    }
+}
