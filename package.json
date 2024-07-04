@@ -3,8 +3,10 @@
     "version": "1.0.0",
     "description": "A small library for running async functions in sequence with the possibility of limiting their execution time and specifying a fallback value.",
     "main": "dist/index.js",
+    "type": "module",
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
     },
     "repository": {
         "type": "git",
