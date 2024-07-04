@@ -1,6 +1,6 @@
 {
     "name": "ts-async-pipeline",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "A small library for running async functions in sequence with the possibility of limiting their execution time and specifying a fallback value.",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
