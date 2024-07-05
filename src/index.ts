@@ -45,12 +45,12 @@ export class Pipeline<I = void> {
         });
     };
 
-    pipe<O>(pipe: Pipe<I, O>): PipeLink<O>;
-    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number): PipeLink<O | null>;
-    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number, fallbackValue: O): PipeLink<O>;
-    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs?: number, fallbackValue?: O): PipeLink<O> {
+    pipe<O>(pipe: Pipe<I, O>): PipelineLink<O>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number): PipelineLink<O | null>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number, fallbackValue: O): PipelineLink<O>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs?: number, fallbackValue?: O): PipelineLink<O> {
         this._pipe(pipe, timeLimitSecs, fallbackValue);
-        return new PipeLink(this._pipe, this._exec, this._cancel);
+        return new PipelineLink(this._pipe, this._exec, this._cancel);
     }
 
     private _isCancelled = false;
@@ -64,19 +64,19 @@ export class Pipeline<I = void> {
     }
 }
 
-export class PipeLink<I> {
+export class PipelineLink<I> {
     constructor(
         private _pipe: (pipe: Pipe<any, any>, timeLimitSecs?: number, fallbackValue?: any) => void,
         private _exec: () => Promise<any>,
         private _cancel: () => void
     ) {}
 
-    pipe<O>(pipe: Pipe<I, O>): PipeLink<O>;
-    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number): PipeLink<O | null>;
-    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number, fallbackValue: O): PipeLink<O>;
-    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs?: number, fallbackValue?: O): PipeLink<O> {
+    pipe<O>(pipe: Pipe<I, O>): PipelineLink<O>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number): PipelineLink<O | null>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number, fallbackValue: O): PipelineLink<O>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs?: number, fallbackValue?: O): PipelineLink<O> {
         this._pipe(pipe, timeLimitSecs, fallbackValue);
-        return new PipeLink(this._pipe, this._exec, this._cancel);
+        return new PipelineLink(this._pipe, this._exec, this._cancel);
     }
 
     exec(): Promise<I> {
