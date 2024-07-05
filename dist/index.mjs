@@ -85,6 +85,10 @@ function _non_iterable_rest() {
 function _sliced_to_array(arr, i) {
     return _array_with_holes(arr) || _iterable_to_array_limit(arr, i) || _unsupported_iterable_to_array(arr, i) || _non_iterable_rest();
 }
+function _type_of(obj) {
+    "@swc/helpers - typeof";
+    return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj;
+}
 function _unsupported_iterable_to_array(o, minLen) {
     if (!o) return;
     if (typeof o === "string") return _array_like_to_array(o, minLen);
@@ -188,9 +192,23 @@ function _ts_generator(thisArg, body) {
         };
     }
 }
+function _ts_values(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function() {
+            if (o && i >= o.length) o = void 0;
+            return {
+                value: o && o[i++],
+                done: !o
+            };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
 var Pipeline = /*#__PURE__*/ function() {
     "use strict";
-    function Pipeline() {
+    function Pipeline(input) {
         var _this = this;
         _class_call_check(this, Pipeline);
         this._pipings = [];
@@ -201,93 +219,173 @@ var Pipeline = /*#__PURE__*/ function() {
                 fallbackValue
             ]);
         };
-        var _this1 = this;
-        this._exec = /*#__PURE__*/ _async_to_generator(function() {
-            return _ts_generator(this, function(_state) {
-                switch(_state.label){
-                    case 0:
-                        return [
-                            4,
-                            _this1._pipings.reduce(function() {
-                                var _ref = _async_to_generator(function(promise, param) {
-                                    var _param, pipe, timeLimitSecs, fallbackValue, input;
+        this._exec = function() {
+            var _this1 = _this;
+            return new Promise(function() {
+                var _ref = _async_to_generator(function(resolve, reject) {
+                    var _$input, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _loop, _iterator, _step, _ret, err;
+                    return _ts_generator(this, function(_state) {
+                        switch(_state.label){
+                            case 0:
+                                _$input = _this1._input;
+                                _iteratorNormalCompletion = true, _didIteratorError = false, _iteratorError = undefined;
+                                _state.label = 1;
+                            case 1:
+                                _state.trys.push([
+                                    1,
+                                    6,
+                                    7,
+                                    8
+                                ]);
+                                _loop = function() {
+                                    var _step_value, pipe, timeLimitSecs, fallbackValue;
                                     return _ts_generator(this, function(_state) {
                                         switch(_state.label){
                                             case 0:
-                                                _param = _sliced_to_array(param, 3), pipe = _param[0], timeLimitSecs = _param[1], fallbackValue = _param[2];
+                                                _step_value = _sliced_to_array(_step.value, 3), pipe = _step_value[0], timeLimitSecs = _step_value[1], fallbackValue = _step_value[2];
+                                                if (_this1._isCancelled) {
+                                                    reject("Pipeline was cancelled");
+                                                    return [
+                                                        2,
+                                                        {
+                                                            v: void void 0
+                                                        }
+                                                    ];
+                                                }
                                                 return [
                                                     4,
-                                                    promise
-                                                ];
-                                            case 1:
-                                                input = _state.sent();
-                                                return [
-                                                    2,
                                                     new Promise(function() {
-                                                        var _ref = _async_to_generator(function(resolve) {
+                                                        var _ref = _async_to_generator(function(resolve2) {
                                                             var timeout;
                                                             return _ts_generator(this, function(_state) {
                                                                 timeout = void 0;
                                                                 if (timeLimitSecs !== void 0) {
                                                                     timeout = setTimeout(function() {
-                                                                        resolve(fallbackValue !== void 0 ? fallbackValue : null);
+                                                                        resolve2(fallbackValue !== void 0 ? fallbackValue : null);
                                                                     }, timeLimitSecs * 1e3);
                                                                 }
-                                                                pipe(input, timeLimitSecs).then(function(output) {
+                                                                pipe(_$input, timeLimitSecs).then(function(output) {
                                                                     clearTimeout(timeout);
-                                                                    resolve(output);
+                                                                    resolve2(output);
                                                                 });
                                                                 return [
                                                                     2
                                                                 ];
                                                             });
                                                         });
-                                                        return function(resolve) {
+                                                        return function(resolve2) {
                                                             return _ref.apply(this, arguments);
                                                         };
                                                     }())
                                                 ];
+                                            case 1:
+                                                _$input = _state.sent();
+                                                return [
+                                                    2
+                                                ];
                                         }
                                     });
-                                });
-                                return function(promise, _) {
-                                    return _ref.apply(this, arguments);
                                 };
-                            }(), null)
-                        ];
-                    case 1:
-                        return [
-                            2,
-                            _state.sent()
-                        ];
-                }
-            });
-        });
+                                _iterator = _this1._pipings[Symbol.iterator]();
+                                _state.label = 2;
+                            case 2:
+                                if (!!(_iteratorNormalCompletion = (_step = _iterator.next()).done)) return [
+                                    3,
+                                    5
+                                ];
+                                return [
+                                    5,
+                                    _ts_values(_loop())
+                                ];
+                            case 3:
+                                _ret = _state.sent();
+                                if (_type_of(_ret) === "object") return [
+                                    2,
+                                    _ret.v
+                                ];
+                                _state.label = 4;
+                            case 4:
+                                _iteratorNormalCompletion = true;
+                                return [
+                                    3,
+                                    2
+                                ];
+                            case 5:
+                                return [
+                                    3,
+                                    8
+                                ];
+                            case 6:
+                                err = _state.sent();
+                                _didIteratorError = true;
+                                _iteratorError = err;
+                                return [
+                                    3,
+                                    8
+                                ];
+                            case 7:
+                                try {
+                                    if (!_iteratorNormalCompletion && _iterator.return != null) {
+                                        _iterator.return();
+                                    }
+                                } finally{
+                                    if (_didIteratorError) {
+                                        throw _iteratorError;
+                                    }
+                                }
+                                return [
+                                    7
+                                ];
+                            case 8:
+                                resolve(_$input);
+                                return [
+                                    2
+                                ];
+                        }
+                    });
+                });
+                return function(resolve, reject) {
+                    return _ref.apply(this, arguments);
+                };
+            }());
+        };
+        this._isCancelled = false;
+        this._cancel = function() {
+            _this._isCancelled = true;
+        };
+        this._input = input;
     }
     _create_class(Pipeline, [
         {
             key: "pipe",
             value: function pipe(pipe, timeLimitSecs, fallbackValue) {
                 this._pipe(pipe, timeLimitSecs, fallbackValue);
-                return new PipeLink(this._pipe, this._exec);
+                return new PipelineLink(this._pipe, this._exec, this._cancel);
+            }
+        },
+        {
+            key: "cancel",
+            value: function cancel() {
+                this._cancel();
             }
         }
     ]);
     return Pipeline;
 }();
-var PipeLink = /*#__PURE__*/ function() {
+var PipelineLink = /*#__PURE__*/ function() {
     "use strict";
-    function _PipeLink(_pipe, _exec) {
-        _class_call_check(this, _PipeLink);
+    function _PipelineLink(_pipe, _exec, _cancel) {
+        _class_call_check(this, _PipelineLink);
         this._pipe = _pipe;
         this._exec = _exec;
+        this._cancel = _cancel;
     }
-    _create_class(_PipeLink, [
+    _create_class(_PipelineLink, [
         {
             key: "pipe",
             value: function pipe(pipe, timeLimitSecs, fallbackValue) {
                 this._pipe(pipe, timeLimitSecs, fallbackValue);
-                return new _PipeLink(this._pipe, this._exec);
+                return new _PipelineLink(this._pipe, this._exec, this._cancel);
             }
         },
         {
@@ -295,8 +393,14 @@ var PipeLink = /*#__PURE__*/ function() {
             value: function exec() {
                 return this._exec();
             }
+        },
+        {
+            key: "cancel",
+            value: function cancel() {
+                this._cancel();
+            }
         }
     ]);
-    return _PipeLink;
+    return _PipelineLink;
 }();
-export { PipeLink, Pipeline };
+export { Pipeline, PipelineLink };
