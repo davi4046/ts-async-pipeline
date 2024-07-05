@@ -15,12 +15,17 @@ export class Pipeline<I = void> {
         this._pipings.push([pipe, timeLimitSecs, fallbackValue]);
     };
 
-    private _exec = async () => {
-        return await this._pipings.reduce(
-            async (promise: Promise<any> | null, [pipe, timeLimitSecs, fallbackValue]) => {
-                const input = await promise;
+    private _exec = () => {
+        return new Promise<any>(async (resolve, reject) => {
+            let input: any = this._input;
 
-                return new Promise(async (resolve) => {
+            for (const [pipe, timeLimitSecs, fallbackValue] of this._pipings) {
+                if (this._isCancelled) {
+                    reject('Pipeline was cancelled');
+                    return;
+                }
+
+                input = await new Promise(async (resolve) => {
                     let timeout = undefined;
 
                     if (timeLimitSecs !== undefined) {
@@ -34,9 +39,10 @@ export class Pipeline<I = void> {
                         resolve(output);
                     });
                 });
-            },
-            new Promise((resolve) => resolve(this._input)) // Initial input
-        );
+            }
+
+            resolve(input);
+        });
     };
 
     pipe<O>(pipe: Pipe<I, O>): PipeLink<O>;
@@ -44,14 +50,25 @@ export class Pipeline<I = void> {
     pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number, fallbackValue: O): PipeLink<O>;
     pipe<O>(pipe: Pipe<I, O>, timeLimitSecs?: number, fallbackValue?: O): PipeLink<O> {
         this._pipe(pipe, timeLimitSecs, fallbackValue);
-        return new PipeLink(this._pipe, this._exec);
+        return new PipeLink(this._pipe, this._exec, this._cancel);
+    }
+
+    private _isCancelled = false;
+
+    private _cancel = () => {
+        this._isCancelled = true;
+    };
+
+    cancel() {
+        this._cancel();
     }
 }
 
 export class PipeLink<I> {
     constructor(
         private _pipe: (pipe: Pipe<any, any>, timeLimitSecs?: number, fallbackValue?: any) => void,
-        private _exec: () => Promise<any>
+        private _exec: () => Promise<any>,
+        private _cancel: () => void
     ) {}
 
     pipe<O>(pipe: Pipe<I, O>): PipeLink<O>;
@@ -59,10 +76,14 @@ export class PipeLink<I> {
     pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number, fallbackValue: O): PipeLink<O>;
     pipe<O>(pipe: Pipe<I, O>, timeLimitSecs?: number, fallbackValue?: O): PipeLink<O> {
         this._pipe(pipe, timeLimitSecs, fallbackValue);
-        return new PipeLink(this._pipe, this._exec);
+        return new PipeLink(this._pipe, this._exec, this._cancel);
     }
 
     exec(): Promise<I> {
         return this._exec();
+    }
+
+    cancel() {
+        this._cancel();
     }
 }

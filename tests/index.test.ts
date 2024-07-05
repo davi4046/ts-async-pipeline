@@ -78,3 +78,61 @@ test(
     },
     20 * 1000
 );
+
+test('Cancellation rejects promise', async () => {
+    async function threeSecondTimeout() {
+        return new Promise<void>((resolve) => {
+            setTimeout(() => resolve(), 3000);
+        });
+    }
+
+    const pipeline = new Pipeline()
+        .pipe(threeSecondTimeout)
+        .pipe(threeSecondTimeout)
+        .pipe(threeSecondTimeout);
+
+    new Promise(() => {
+        setTimeout(() => pipeline.cancel(), 5000);
+    });
+
+    await pipeline.exec().catch((reason) => {
+        expect(reason).toBe('Pipeline was cancelled');
+    });
+}, 20000);
+
+test('Cancellation stops flow', async () => {
+    async function threeSecondTimeout() {
+        return new Promise<void>((resolve) => {
+            setTimeout(() => resolve(), 3000);
+        });
+    }
+
+    let counter = 0;
+
+    const pipeline = new Pipeline()
+        .pipe(() => {
+            counter += 1;
+            return threeSecondTimeout();
+        })
+        .pipe(() => {
+            counter += 1;
+            return threeSecondTimeout();
+        })
+        .pipe(() => {
+            counter += 1;
+            return threeSecondTimeout();
+        });
+
+    new Promise(() => {
+        setTimeout(() => pipeline.cancel(), 5000);
+    });
+
+    pipeline.exec().catch(() => {});
+
+    // Wait until every pipe could potentially have run
+    await threeSecondTimeout();
+    await threeSecondTimeout();
+    await threeSecondTimeout();
+    await threeSecondTimeout();
+    expect(counter).toBe(2);
+}, 20000);
