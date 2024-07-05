@@ -1,6 +1,14 @@
 export type Pipe<I, O> = (input: I, timeLimitSecs?: number) => Promise<O>;
 
-export class Pipeline {
+export class Pipeline<I = void> {
+    private _input?: I;
+
+    constructor();
+    constructor(input: I);
+    constructor(input?: I) {
+        this._input = input;
+    }
+
     private _pipings: [Pipe<any, any>, number | undefined, any | undefined][] = [];
 
     private _pipe = (pipe: Pipe<any, any>, timeLimitSecs?: number, fallbackValue?: any) => {
@@ -27,15 +35,14 @@ export class Pipeline {
                     });
                 });
             },
-            null
+            new Promise((resolve) => resolve(this._input)) // Initial input
         );
     };
 
-    pipe<O>(pipe: Pipe<null, O>): PipeLink<O>;
-    pipe<O>(pipe: Pipe<null, O>, timeLimitSecs: number): PipeLink<O | null>;
-    pipe<O>(pipe: Pipe<null, O>, timeLimitSecs: number, fallbackValue: O): PipeLink<O>;
-
-    pipe<O>(pipe: Pipe<null, O>, timeLimitSecs?: number, fallbackValue?: O): PipeLink<O> {
+    pipe<O>(pipe: Pipe<I, O>): PipeLink<O>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number): PipeLink<O | null>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number, fallbackValue: O): PipeLink<O>;
+    pipe<O>(pipe: Pipe<I, O>, timeLimitSecs?: number, fallbackValue?: O): PipeLink<O> {
         this._pipe(pipe, timeLimitSecs, fallbackValue);
         return new PipeLink(this._pipe, this._exec);
     }
@@ -50,7 +57,6 @@ export class PipeLink<I> {
     pipe<O>(pipe: Pipe<I, O>): PipeLink<O>;
     pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number): PipeLink<O | null>;
     pipe<O>(pipe: Pipe<I, O>, timeLimitSecs: number, fallbackValue: O): PipeLink<O>;
-
     pipe<O>(pipe: Pipe<I, O>, timeLimitSecs?: number, fallbackValue?: O): PipeLink<O> {
         this._pipe(pipe, timeLimitSecs, fallbackValue);
         return new PipeLink(this._pipe, this._exec);
