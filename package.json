@@ -14,7 +14,7 @@
     },
     "scripts": {
         "build": "tsup src/index.ts --format cjs,esm --dts --clean",
-        "test": "jest --detectOpenHandles"
+        "test": "jest"
     },
     "repository": {
         "type": "git",
